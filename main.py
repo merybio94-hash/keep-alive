@@ -1,5 +1,9 @@
 import time
 import requests
+import urllib3
+import traceback
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 url = "http://up.smf24.cx:8088/hr.php"
 
@@ -9,25 +13,23 @@ params = {
 
 headers = {
     'Host': "up.smf24.cx:8088",
-    'User-Agent': "66482B2359531",
+    'User-Agent': "84388B2359531",
     'Connection': "Keep-Alive"
 }
 
-print("جاري بدء التكرار كل ثانيتين... اضغط Ctrl+C للإيقاف.")
+print("[*] تم بدء تشغيل نظام الإنعاش السريع جداً بنسخته المحسنة...")
 
-counter = 0
-
-try:
-    while True:
+counter = 1
+while True:
+    try:
+        response = requests.get(url, params=params, headers=headers, verify=False, timeout=15)
+        print(f"[{counter}] - الرد: {response.status_code} - {response.text[:30]}")
         counter += 1
-        try:
-            response = requests.get(url, params=params, headers=headers, timeout=5)
-            print(f"[{counter}] حالة الطلب: {response.status_code} - الرد: {response.text[:100]}")
-        except requests.exceptions.RequestException as e:
-            print(f"[{counter}] حدث خطأ في الاتصال: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"[-] خطأ في الشبكة أو الاتصال: {e}")
+    except Exception as e:
+        print(f"[-] خطأ غير متوقع: {e}")
+        traceback.print_exc()
         
-        # الانتظار لمدة ثانيتين قبل الطلب التالي
-        time.sleep(2)
-
-except KeyboardInterrupt:
-    print("\nتم إيقاف البرنامج بواسطة المستخدم.")
+    # الانتظار 3 ثوانٍ قبل الطلب التالي
+    time.sleep(3)
